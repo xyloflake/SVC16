@@ -1,6 +1,6 @@
 # The Simplest Virtual Computer (16 bit)
 <div align="center">
-<img src="logo.png" alt="Logo" width="200"/>
+<img src="logo_alpha.png" alt="Logo" width="200"/>
   </div>
 This is the spec for an extremely simple "virtual computer" that can be emulated.
 

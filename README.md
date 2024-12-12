@@ -2,9 +2,12 @@
 <div align="center">
 <img src="logo.png" alt="Logo" width="200"/>
   </div>
-This is the spec for an extremely simple "virtual computer" that can be emulated on a modern computer.
+This is the spec for an extremely simple "virtual computer" that can be emulated.
 
 The goal in one word is **simplicity**. It should be simple to understand every instruction, to write machine code that runs on it, and to write a compiler for it.
+
+The instruction set and the design in general are in no way meant to be "realistic depictions" of something that would make sense in real hardware. 
+
 
 ## Quick Overview
 ### No Registers

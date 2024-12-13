@@ -7,7 +7,7 @@ This is the specification for an extremely simple "virtual computer" that can be
 
 The goal in one word is **simplicity**. It should be simple to understand every instruction, to write machine code that runs on it, and to write a compiler for it.
 
-The instruction set and the design in general are in no way meant to be "realistic depictions" of something that would make sense in real hardware.
+The instruction set and the design in general are in no way meant to resemble something that would make sense in real hardware.
 It is also not intended to be as simple and elegant as it could possibly be.  
 
 This repo contains an emulator to run games or programs. It can be installed with cargo:
@@ -37,7 +37,7 @@ The idea is that you have to build that yourself. You can play a game from the e
 There are no CPU registers, just one chunk of memory. Values can be loaded from every memory address and written to every memory address.
 
 ### Everything is an unsigned 16-bit integer
-Everything is represented as a (le) unsigned 16-bit integer. That includes numbers, addresses, colors, the instruction-pointer and the input. 
+Everything is represented as a (le) unsigned 16-bit integer. That includes numbers, addresses, colors, the instruction pointer and the input. 
 Booleans are represented as u16 values as well: 0 for false and >0 for true. (1 when written as a boolean.)
 
 ### Wrapping Arithmetic
@@ -57,9 +57,9 @@ Here is a sketch of all components of the virtual computer:
 
 ![](sketch.svg)
 
-### Instruction-pointer
+### Instruction pointer
 
-This value is an address in the main memory. It starts as zero. Then, it is manipulated by the instructions. All operations performed on the instruction pointer are wrapping.
+The instruction pointer represents an address in main memory. It starts as zero. Then, it is manipulated by the instructions. All operations performed on the instruction pointer are wrapping.
 
 ### Screen
 
@@ -94,7 +94,7 @@ In the following table, all instructions are listed. `@arg1` refers to the value
 If the opcode is greater than 15, the system will abort.
 If one of the three arguments is not used, it can be set to any value, but it can not be omitted.
 
-When the instruction-pointer advances, it does so by four positions.
+When the instruction pointer advances, it does so by four positions.
 
 | Opcode | Name      | Advances   | Effect                                                                       |
 | ------ | --------- | ---------- | ---------------------------------------------------------------------------- |

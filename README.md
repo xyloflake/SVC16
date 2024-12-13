@@ -10,6 +10,15 @@ The instruction set and the design in general are in no way meant to be "realist
 It is also not intended to be as simple and elegant as it could possibly be.  
 
 This repo contains an emulator to run games or programs. It can be installed with cargo:
+```sh
+cargo install --git https://github.com/JanNeuendorf/SVC16
+```
+
+You can then run a program from the cli:
+```sh
+svc16 /path/to/my_rom.svc16
+```
+Use `--help` to see some basic options.
 
 I do not want to provide an assembler, any kind of compiler or even any ideas about things like call conventions. 
 The idea is that you have to build that yourself. You can play a game from the example folder to get an idea of what can be built.
@@ -61,11 +70,11 @@ On synchronization the input on the last frame is loaded into the input-buffer.
 The "Position code" is the index of the pixel, the mouse is currently on. 
 The "Key code" is given by left_mouse+2*right_mouse. So it can have the values 0 1 2 or 3.
 
-The instructions are in general one frame behind.
+There is no guarantee that the inputs are synced on the next frame. Before the first synchronization, the input codes are zero.
 
 ### Synchronization
 
-When the console executes the sync instruction, the screen-buffer is drawn to the screen. It is not cleared. The input-buffer and the frame-count are updated. The system will be put to sleep until the beginning of the next frame. The targeted timing is 30fps. There is a hard limit of 3000000 instructions per frame. This means that if the `sync` command has not be called for 3000000 instructions, it will be performed automatically.
+When the console executes the **Sync** instruction, the screen-buffer is drawn to the screen. It is not cleared. The input-buffer is updated. The system will be put to sleep until the beginning of the next frame. The targeted timing is 30fps. There is a hard limit of 3000000 instructions per frame. This means that if the **Sync** command has not be called for 3000000 instructions, it will be performed automatically.
 
 ## CPU
 

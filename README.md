@@ -12,7 +12,9 @@ It is also not intended to be as simple and elegant as it could possibly be.
 This repo contains an emulator to run games or programs. It can be installed with cargo:
 
 I do not want to provide an assembler, any kind of compiler or even any ideas about things like call conventions. 
-The idea is that you have to build that yourself. You can play a game from the example folder to get an idea of what can be build. 
+The idea is that you have to build that yourself. You can play a game from the example folder to get an idea of what can be built.
+[![Gameplay](https://img.youtube.com/vi/9UtZ0Hz8GfY/0.jpg)](https://www.youtube.com/watch?v=9UtZ0Hz8GfY)
+
 
 
 ## Quick Overview

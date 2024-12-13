@@ -122,7 +122,7 @@ There is no distinction between memory that contains instructions and memory tha
 The initial state is loaded from a binary file that is read as containing the (le) u16 values in order. The maximum size is $2*2^{16}=$ bytes ($\approx$ 131.1kB).
 It can be shorter, in which case the end is padded with zeroes. The computer will begin by executing the instruction at index 0.
 
-### Example
+## Example
 
 A simple example would be to print all $2^{16}$ possible colors to the screen.
 We make our lives easier, by mapping each index of the screen-buffer to the color which is encoded with the index.
@@ -157,6 +157,21 @@ with open("all_colors.svc16", "wb") as f:
         f.write(struct.pack("<H", value))
 
 ```
+
+Inspecting the file, we should see:
+```ansi
+➜ hexyl examples/all_colors.svc16 -pv --panels 1
+
+  00 00 f5 01 01 00 00 00
+  00 00 f6 01 ff ff 00 00
+  0b 00 f4 01 f4 01 00 00
+  03 00 f4 01 f5 01 f4 01
+  07 00 f4 01 f6 01 f7 01
+  0e 00 f7 01 f5 01 f7 01
+  02 00 00 00 04 00 f7 01
+  0f 00 00 00 00 00 00 00
+  01 00 00 00 00 00 00 00
+``` 
 
 When we run this, we get the following output:
 

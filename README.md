@@ -32,6 +32,7 @@ The idea is that you have to build that yourself. You can play a game from the e
   
 
 ## Quick Overview
+> ⚠️ **Warning**: Until there are specifications with version 1.0, there could be breaking changes. 
 
 ### No Registers
 There are no CPU registers, just one chunk of memory. Values can be loaded from every memory address and written to every memory address.

@@ -56,7 +56,7 @@ It also means that there are no accelerators or tricks to help with performance.
 ### Setup
 Here is a sketch of all components of the virtual computer:
 
-![](sketch.svg)
+![](specification/sketch.svg)
 
 ### Instruction pointer
 

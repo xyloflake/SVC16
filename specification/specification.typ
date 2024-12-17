@@ -86,6 +86,63 @@ When the console executes the *Sync* instruction, the screen buffer is drawn to 
 It is not cleared. The system will be put to sleep until the beginning of the next frame. 
 The targeted timing is 30fps. There is a hard limit of 3000000 instructions per frame. 
 This means that if the Sync command has not been called for 3000000 instructions, it will be performed automatically.
-This can mean that an event (like a mouse click) is never handled.
+This can mean that an event (like a mouse click) is never handled. An alternative way to describe it is that the syncing happens automatically every frame and the instructions each take $frac(1,30*3000000)$ seconds. Then the *Sync* command just sleeps until the next frame starts. 
 
 == Instruction Set
+
+All instructions are 4 values long. A value is, of course, a `u16`.
+
+The instructions have the form `opcode` `arg1` `arg2` `arg3`.
+
+In the following table, all instructions are listed. `@arg1` refers to the value at the memory address `arg1`. If the opcode is greater than 15, the system will abort. If one of the three arguments is not used, it can be set to any value, but it can not be omitted.
+
+When the instruction pointer advances, it does so by four positions.
+
+#table(
+  columns: (auto, auto, auto,auto),
+  inset: 11pt,
+  align: horizon,
+  table.header(
+    [*Opcode*], [*Name*], [*Advances*],[*Effect*],
+  ),
+  [0],[*Set*],[yes],[`@arg1=arg2`],
+  [1],[*GoTo*],[if skipped],[`if(not @arg3){inst_ptr=@arg1+arg2}`],
+  [2],[*Skip*],[if skipped],[`if(not @arg3){inst_ptr=inst_ptr+4*arg1-4*arg2}`],
+  [3],[*Add*],[yes],[`@arg3=(@arg1+@arg2)`],
+  [4],[*Sub*],[yes],[`@arg3=(@arg1-@arg2)`],
+  [5],[*Mul*],[yes],[`@arg3=(@arg1*@arg2)`],
+  [6],[*Div*],[yes],[`@arg3=(@arg1/@arg2)`],
+  [7],[*Cmp*],[yes],[`@arg3=(@arg1<@arg2)` (as unsigned)],
+  [8],[*Deref*],[yes],[`@arg2=@(@arg1+arg3)`],
+  [9],[*Ref*],[yes],[`@(@arg1+arg3)=@arg2`],
+  [10],[*Inst*],[yes],[`@arg1=inst_ptr` (Advances after instruction is run.)],
+  [11],[*Print*],[yes],[Writes `color=@arg1` to `index=@arg2` of screen buffer.],
+  [12],[*Read*],[yes],[Copies `index=@arg1` of the screen buffer to `@arg2`.],
+  [13],[*Band*],[yes],[`@arg3=@arg1&@arg2` (binary and)],
+  [14],[*Xor*],[yes],[`@arg3=@arg1^@arg2` (binary exclusive or)],
+  [15],[*Sync*],[yes],[Puts `@arg1=position_code`, `@arg2=key_code` and synchronizes (in that order).],
+)
+
+== Constructing the Program
+
+A program is really just the initial state of the main memory.
+There is no distinction between memory that contains instructions and memory that contains some other asset.
+The initial state is loaded from a binary file that is read as containing the (le) u16 values in order. 
+The maximum size is $2*2^16  upright("bytes") approx 131.1 upright("kB")$.
+It can be shorter, in which case the end is padded with zeroes.
+The computer will begin by executing the instruction at index 0.
+
+== Handling Exceptions 
+There are only two reasons the program can fail (for internal reasons).
+
+- It tries to divide by zero
+- It tries to execute an instruction with an opcode greater than 15. 
+
+In both cases, the execution of the program is stopped. It is not restarted automatically.
+(So you can not cause an error to restart a game.) 
+There is intentionally no way of restarting or even quitting a program from within.
+
+#not-specified[
+  - There is no rule for how (or even if) the cause of the exception is reported.
+  - It is not guaranteed that the emulator closes if an exception occurs. (So you can not use it to quit a program.)
+]

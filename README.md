@@ -27,7 +27,7 @@ Use `--help` to see some basic options.
 I do not want to provide an assembler, any kind of compiler or even any ideas about things like call conventions. 
 The idea is that you have to build that yourself. You can play a game from the example folder to get an idea of what can be built.
 <div align="center">
-<img src="examples/rectavoiders.gif" alt="Logo" width="500"/>
+<img src="examples/rectavoider.gif" alt="Logo" width="500"/>
   </div>
   
 

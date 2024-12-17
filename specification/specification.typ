@@ -1,8 +1,11 @@
 #import "@preview/colorful-boxes:1.4.0":slanted-colorbox
 #set page(
 paper:"a4",
-background: rotate(24deg,
-  text(48pt, fill: rgb("FFCBC4"))[
+margin: 60pt,
+columns: 1,
+numbering: "- 1 -",
+foreground: rotate(24deg,
+  text(48pt, fill: rgb("#ff4e375f"))[
     *WORK IN PROGRESS*
   ]
 ))
@@ -11,6 +14,8 @@ background: rotate(24deg,
   title: "Not specified",
   color: "gray",
 )[#txt]
+
+#show link: underline
 
 
 = SVC16: A Simple Virtual Computer
@@ -47,7 +52,7 @@ Division by zero crashes the program.
 
 == The Simulated System
 #figure(
-  image("sketch.svg", width: 65%),
+  image("sketch.svg", width: 70%),
   caption: [A sketch of all components of the virtual computer.],
 ) <sketch>
 
@@ -86,7 +91,8 @@ When the console executes the *Sync* instruction, the screen buffer is drawn to 
 It is not cleared. The system will be put to sleep until the beginning of the next frame. 
 The targeted timing is 30fps. There is a hard limit of 3000000 instructions per frame. 
 This means that if the Sync command has not been called for 3000000 instructions, it will be performed automatically.
-This can mean that an event (like a mouse click) is never handled. An alternative way to describe it is that the syncing happens automatically every frame and the instructions each take $frac(1,30*3000000)$ seconds. Then the *Sync* command just sleeps until the next frame starts. 
+This can mean that an event (like a mouse click) is never handled.
+An alternative way to describe it is that the syncing happens automatically every frame and the instructions each take $frac(1,30*3000000)$ seconds. Then the *Sync* command just sleeps until the next frame starts. 
 
 == Instruction Set
 
@@ -146,3 +152,82 @@ There is intentionally no way of restarting or even quitting a program from with
   - There is no rule for how (or even if) the cause of the exception is reported.
   - It is not guaranteed that the emulator closes if an exception occurs. (So you can not use it to quit a program.)
 ]
+
+== Example Program 
+
+#[
+  
+  #show raw: it => block(
+  fill: rgb("#0000000f"),
+  inset: 10pt,
+  radius: 4pt,
+  text(fill: rgb("#000000"), it))
+
+
+A simple example would be to print all $2^16$ possible colors to the screen.
+We make our lives easier, by mapping each index of the screen buffer to the color which is encoded with the index.
+Here, we use the names of the opcodes instead of their numbers.
+
+```
+Set 501 1 0       // Write the value 1 to address 501
+Set 502 65535 0   // Write the largest possible value to 502
+Print 500 500 0   // Display color=@500 at screen-index=@500
+Add 500 501 500   // Increment the color/screen-index
+Cmp 500 502 503   // See if we are not at the max number
+Xor 503 501 503   // Negate it
+Skip 0 4 503      // Unless we are at the max number, go back 4 instructions
+Sync 0 0 0        // Sync 
+GoTo 0 0 0        // Repeat to keep the window open
+```
+We could rely on the fact that the value at index 500 starts at zero and we did not have to initialize it.
+
+To build a program that we can execute, we could use python #emoji.snake:
+
+```python 
+import struct
+code = [
+    0, 501, 1, 0, #Opcodes replaced with numbers
+    0, 502, 65535, 0,
+    11, 500, 500, 0,
+    # ...
+]
+with open("all_colors.svc16", "wb") as f:
+    for value in code:
+        f.write(struct.pack("<H", value))
+
+```
+Inspecting the file, we should see:
+
+
+```
+➜ hexyl examples/all_colors.svc16 -pv --panels 1
+
+  00 00 f5 01 01 00 00 00
+  00 00 f6 01 ff ff 00 00
+  0b 00 f4 01 f4 01 00 00
+  03 00 f4 01 f5 01 f4 01
+  07 00 f4 01 f6 01 f7 01
+  0e 00 f7 01 f5 01 f7 01
+  02 00 00 00 04 00 f7 01
+  0f 00 00 00 00 00 00 00
+  01 00 00 00 00 00 00 00
+```
+Every line represents one instruction.
+The second column is zero because it is the most significant byte of the opcode.
+
+
+When we run this, we should see the output shown in @colors.
+#figure(
+  image("colors_scaled.png", width: 40%),
+  caption: [Output of the color example.],
+) <colors>
+
+]
+
+== Miscellaneous
+Further information, examples and a reference emulator can be found at #link("https://github.com/JanNeuendorf/SVC16").
+Everything contained in this project is provided under the _MIT License_.
+Do with it whatever you want.
+
+One think we would ask is that if you distribute a modified version that is incompatible with the specifications,
+you make it clear that it has breaking changes. 

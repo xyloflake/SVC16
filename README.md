@@ -1,7 +1,7 @@
 # The Simplest Virtual Computer (16 bit)
 
 <div align="center">
-<img src="logo_alpha.png" alt="Logo" width="200"/>
+<img src="specification/logo_alpha.png" alt="Logo" width="200"/>
   </div>
 This is the specification for an extremely simple "virtual computer" that can be emulated.
 
@@ -120,7 +120,7 @@ When the instruction pointer advances, it does so by four positions.
 
 A program is really just the initial state of the main memory.
 There is no distinction between memory that contains instructions and memory that contains some other asset.
-The initial state is loaded from a binary file that is read as containing the (le) u16 values in order. The maximum size is $2*2^{16}=$ bytes ($\approx$ 131.1kB).
+The initial state is loaded from a binary file that is read as containing the (le) u16 values in order. The maximum size is $2*2^{16}$ bytes ($\approx$ 131.1kB).
 It can be shorter, in which case the end is padded with zeroes. The computer will begin by executing the instruction at index 0.
 
 ## Example
@@ -176,7 +176,7 @@ Inspecting the file, we should see:
 
 When we run this, we get the following output:
 
-![All colors](colors_scaled.png)
+![All colors](specification/colors_scaled.png)
 
 
 ## Contributing

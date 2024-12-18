@@ -3,7 +3,7 @@
 #set text(size: 8pt)
 #set page(
 paper:"a4",
-margin: (left:40pt,right:40pt,top:60pt,bottom:60pt),
+margin: (left:50pt,right:50pt,top:60pt,bottom:60pt),
 flipped: false,
 columns: 2,
 numbering: "- 1 -",
@@ -75,7 +75,7 @@ It always starts at zero.
 == Screen and Colors <screen>
 The color of each pixel is represented with 16-bits using `RGB565`.
 The coordinate $(x,y)$ of the screen maps to the index $256 y + x$ in the screen buffer.
-The coordinate $(0,0)$ is in the upper left-hand corner. Changes to the screen-buffer are not reflected on the screen until the system is synchronized.
+The coordinate $(0,0)$ is in the upper left-hand corner. Changes to the screen buffer are not reflected on the screen until the system is synchronized.
 
 #not-specified[
 - Colors do not have to be represented accurately (accessability options).
@@ -94,21 +94,21 @@ Before the first synchronization, both input codes are zero.
 The *position code* is the index of the pixel, the mouse is currently on. 
 It follows the same convention as the screen index explained in @screen.
 
-
+#let custom_button(lbl)=block(fill:rgb("#8cafbf"),outset:2pt,radius: 1pt, strong(text(fill:rgb("#fafafa"),lbl)))
 #let input_table=table(
   columns: (auto, auto, auto,auto),
   align: horizon,
   table.header(
     [*Bit*],[*Controller Key*], [*Mouse Key*],[*Suggested Mapping*],
   ),
-  [0],[*A*],[Left],[*Space* / Mouse Left],
-  [1],[*B*],[Right],[*B* / Mouse Right],
-  [2],[*Up*],[-],[*Up* / *W*],
-  [3],[*Down*],[-],[*Down* / *S*],
-  [4],[*Left*],[-],[*Left* / *A*],
-  [5],[*Right*],[-],[*Right* / *D*],
-  [6],[*Select*],[-],[*N*],
-  [7],[*Select*],[-],[*M*],
+  [0],[#emoji.a],[Left],[*Space* / Mouse~Left],
+  [1],[#emoji.b],[Right],[*B* / Mouse~Right],
+  [2],[#emoji.arrow.t],[-],[*Up* / *W*],
+  [3],[#emoji.arrow.b],[-],[*Down* / *S*],
+  [4],[#emoji.arrow.l],[-],[*Left* / *A*],
+  [5],[#emoji.arrow.t],[-],[*Right* / *D*],
+  [6],[#custom_button("select")],[-],[*N*],
+  [7],[#custom_button("start")],[-],[*M*],
   )
 
   #figure(
@@ -117,7 +117,7 @@ It follows the same convention as the screen index explained in @screen.
 ) <inputs>
 
 The *key code* uses bitflags. 
-The bits in @inputs are supposed to indicate if a key is currently pressed (and not if it was just pressed or released). As an example, if only the *A* and the *Down* key are pressed, the key code is equal to the number $2^0+2^3=9$.
+The bits in @inputs are supposed to indicate if a key is currently pressed (and not if it was just pressed or released). As an example, if only #emoji.a and #emoji.arrow.b are pressed, the key code is equal to the number $2^0+2^3=9$.
 
 #not-specified[
 - It is not guaranteed on which frame the virtual machine sees an input activate or deactivate.
@@ -139,9 +139,9 @@ All instructions are 4 values long. A value is, of course, a `u16`.
 
 The instructions have the form `opcode` `arg1` `arg2` `arg3`.
 
-In the following table, all instructions are listed. `@arg1` refers to the value at the memory address `arg1`. If the opcode is greater than 15, the system will abort. If one of the three arguments is not used, it can be set to any value, but it can not be omitted.
+All instructions are listed in @instructions.
+`@arg1` refers to the value at the memory address `arg1`. If the opcode is greater than 15, the system will abort. If one of the three arguments is not used, it can be set to any value, but it can not be omitted.
 
-When the instruction pointer advances, it does so by four positions.
 
 #let instruction_table=table(
   columns: (auto,auto,auto),
@@ -201,7 +201,7 @@ There is intentionally no way of restarting or even quitting a program from with
 
 #not-specified[
   - There is no rule for how (or even if) the cause of the exception is reported.
-  - It is not guaranteed that the emulator closes if an exception occurs. (So you can not use it to quit a program.)
+  - It is not guaranteed that the emulator itself closes if an exception occurs. (So you can not use it to quit a program.)
 ]
 
 = Example Program 

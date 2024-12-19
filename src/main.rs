@@ -7,7 +7,6 @@ use clap::Parser;
 use cli::Cli;
 use engine::Engine;
 use pixels::{Pixels, SurfaceTexture};
-use std::ops::BitAnd;
 use std::time::{Duration, Instant};
 use utils::*;
 use winit::dpi::LogicalSize;

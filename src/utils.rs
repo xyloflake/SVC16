@@ -1,12 +1,39 @@
 use crate::RES;
 use anyhow::Result;
 use pixels::Pixels;
+use std::hash::Hash;
 use winit::{
     event::MouseButton,
     event_loop::EventLoopWindowTarget,
     keyboard::{Key, KeyCode},
 };
 use winit_input_helper::WinitInputHelper;
+use winit_input_map::{input_map, GamepadButton, InputMap};
+
+#[derive(Debug, Hash, PartialEq, Eq, Clone, Copy)]
+pub enum NesInput {
+    Up,
+    Down,
+    Left,
+    Right,
+    A,
+    B,
+    Start,
+    Select,
+}
+
+pub fn build_gamepad_map() -> InputMap<NesInput> {
+    input_map!(
+        (NesInput::A, GamepadButton::East),
+        (NesInput::B, GamepadButton::South),
+        (NesInput::Select, GamepadButton::Select),
+        (NesInput::Start, GamepadButton::Start),
+        (NesInput::Up, GamepadButton::DPadUp),
+        (NesInput::Down, GamepadButton::DPadDown),
+        (NesInput::Left, GamepadButton::DPadLeft),
+        (NesInput::Right, GamepadButton::DPadRight)
+    )
+}
 
 pub fn read_u16s_from_file(file_path: &str) -> Result<Vec<u16>> {
     use std::io::{BufReader, Read};
@@ -41,7 +68,11 @@ pub fn update_image_buffer(imbuff: &mut [u8], screen: &[u16; RES * RES]) {
     }
 }
 
-pub fn get_input_code(input: &WinitInputHelper, pxls: &Pixels) -> (u16, u16) {
+pub fn get_input_code(
+    input: &WinitInputHelper,
+    gamepad: &InputMap<NesInput>,
+    pxls: &Pixels,
+) -> (u16, u16) {
     let raw_mp = input.cursor().unwrap_or((0., 0.));
     let mp = match pxls.window_pos_to_pixel(raw_mp) {
         Ok(p) => p,
@@ -49,28 +80,46 @@ pub fn get_input_code(input: &WinitInputHelper, pxls: &Pixels) -> (u16, u16) {
     };
     let pos_code = (mp.1 as u16 * 256) + mp.0 as u16;
     let mut key_code = 0_u16;
-    if input.key_held(KeyCode::Space) || input.mouse_held(MouseButton::Left) {
+    if input.key_held(KeyCode::Space)
+        || input.mouse_held(MouseButton::Left)
+        || gamepad.pressing(NesInput::A)
+    {
         key_code += 1;
     }
-    if input.key_held_logical(Key::Character("b")) || input.mouse_held(MouseButton::Right) {
+    if input.key_held_logical(Key::Character("b"))
+        || input.mouse_held(MouseButton::Right)
+        || gamepad.pressing(NesInput::B)
+    {
         key_code += 2;
     }
-    if input.key_held_logical(Key::Character("w")) || input.key_held(KeyCode::ArrowUp) {
+    if input.key_held_logical(Key::Character("w"))
+        || input.key_held(KeyCode::ArrowUp)
+        || gamepad.pressing(NesInput::Up)
+    {
         key_code += 4;
     }
-    if input.key_held_logical(Key::Character("s")) || input.key_held(KeyCode::ArrowDown) {
+    if input.key_held_logical(Key::Character("s"))
+        || input.key_held(KeyCode::ArrowDown)
+        || gamepad.pressing(NesInput::Down)
+    {
         key_code += 8;
     }
-    if input.key_held_logical(Key::Character("a")) || input.key_held(KeyCode::ArrowLeft) {
+    if input.key_held_logical(Key::Character("a"))
+        || input.key_held(KeyCode::ArrowLeft)
+        || gamepad.pressing(NesInput::Left)
+    {
         key_code += 16;
     }
-    if input.key_held_logical(Key::Character("d")) || input.key_held(KeyCode::ArrowRight) {
+    if input.key_held_logical(Key::Character("d"))
+        || input.key_held(KeyCode::ArrowRight)
+        || gamepad.pressing(NesInput::Right)
+    {
         key_code += 32;
     }
-    if input.key_held_logical(Key::Character("n")) {
+    if input.key_held_logical(Key::Character("n")) || gamepad.pressing(NesInput::Select) {
         key_code += 64;
     }
-    if input.key_held_logical(Key::Character("m")) {
+    if input.key_held_logical(Key::Character("m")) || gamepad.pressing(NesInput::Start) {
         key_code += 128;
     }
     (pos_code, key_code)

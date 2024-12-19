@@ -131,7 +131,13 @@ It is not cleared. The system will be put to sleep until the beginning of the ne
 The targeted timing is 30fps. There is a hard limit of 3000000 instructions per frame. 
 This means that if the Sync command has not been called for 3000000 instructions, it will be performed automatically.
 This can mean that an event (like a mouse click) is never handled.
-An alternative way to describe it is that the syncing happens automatically every frame and the instructions each take $frac(1,30*3000000)$ seconds. Then the *Sync* command just sleeps until the next frame starts. 
+An alternative way to describe it is that the syncing happens automatically every frame and the instructions each take $frac(1,30*3000000)$ seconds.
+Then the *Sync* command just sleeps until the next frame starts. 
+#not-specified[
+There might be a delay before the updated frame is shown on screen.
+For example one might need to wait for _vsync_ or the window takes time to update.
+]
+
 
 = Instruction Set
 

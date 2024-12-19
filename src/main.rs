@@ -7,11 +7,12 @@ use clap::Parser;
 use cli::Cli;
 use engine::Engine;
 use pixels::{Pixels, SurfaceTexture};
+use std::ops::BitAnd;
 use std::time::{Duration, Instant};
 use utils::*;
 use winit::dpi::LogicalSize;
 use winit::event_loop::EventLoop;
-use winit::keyboard::KeyCode;
+use winit::keyboard::{Key, KeyCode};
 use winit::window::WindowBuilder;
 use winit_input_helper::WinitInputHelper;
 const RES: usize = 256;
@@ -20,7 +21,8 @@ const FRAMETIME: Duration = Duration::from_nanos((1000000000. / 30.) as u64);
 fn main() -> Result<()> {
     let cli = Cli::parse();
     let initial_state = read_u16s_from_file(&cli.program)?;
-    let mut engine = Engine::new(initial_state);
+    // The initial state is cloned, so we keep it around for a restart.
+    let mut engine = Engine::new(initial_state.clone());
 
     let event_loop = EventLoop::new()?;
     let mut input = WinitInputHelper::new();
@@ -50,6 +52,7 @@ fn main() -> Result<()> {
     };
 
     let mut raw_buffer = [0 as u16; engine::MEMSIZE];
+    let mut paused = false;
 
     event_loop.run(|event, elwt| {
         let start_time = Instant::now();
@@ -57,6 +60,13 @@ fn main() -> Result<()> {
             if input.key_pressed(KeyCode::Escape) || input.close_requested() {
                 elwt.exit();
                 return;
+            }
+            if input.key_pressed_logical(Key::Character("p")) {
+                paused = !paused;
+            }
+            if input.key_pressed_logical(Key::Character("r")) {
+                engine = Engine::new(initial_state.clone());
+                paused = false;
             }
 
             if let Some(size) = input.window_resized() {
@@ -68,7 +78,7 @@ fn main() -> Result<()> {
 
             let mut ipf = 0;
             let engine_start = Instant::now();
-            while !engine.wants_to_sync() && ipf <= cli.max_ipf {
+            while !engine.wants_to_sync() && ipf <= cli.max_ipf && !paused {
                 match engine.step() {
                     Err(_) => {
                         handle_event_loop_error(&elwt, "Invalid operation");

@@ -62,6 +62,11 @@ fn main() -> Result<()> {
             }
             if input.key_pressed_logical(Key::Character("p")) {
                 paused = !paused;
+                if paused {
+                    window.set_title("SVC16 (paused)");
+                } else {
+                    window.set_title("SVC16");
+                }
             }
             if input.key_pressed_logical(Key::Character("r")) {
                 engine = Engine::new(initial_state.clone());

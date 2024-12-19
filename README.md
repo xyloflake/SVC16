@@ -206,5 +206,6 @@ feel free to open an issue.
 ### Task List
 
 - [ ] Write a very detailed specification document
+  - In progress (see *specification* directory)
 - [ ] Create a more advanced example program
-- [ ] Explore the possibility of a web-based emulator
+- [ ] Test the reference emulator on different platforms

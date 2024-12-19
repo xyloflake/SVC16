@@ -49,6 +49,8 @@ fn main() -> Result<()> {
         Pixels::new(RES as u32, RES as u32, surface_texture)?
     };
 
+    let mut raw_buffer = [0 as u16; engine::MEMSIZE];
+
     event_loop.run(|event, elwt| {
         let start_time = Instant::now();
         if input.update(&event) {
@@ -65,6 +67,7 @@ fn main() -> Result<()> {
             }
 
             let mut ipf = 0;
+            let engine_start = Instant::now();
             while !engine.wants_to_sync() && ipf <= cli.max_ipf {
                 match engine.step() {
                     Err(_) => {
@@ -75,13 +78,19 @@ fn main() -> Result<()> {
                 }
                 ipf += 1;
             }
+            let engine_elapsed = engine_start.elapsed();
             let (c1, c2) = get_input_code(&input, &pixels);
-            let nb = engine.perform_sync(c1, c2);
-            update_image_buffer(pixels.frame_mut(), &nb);
+            engine.perform_sync(c1, c2, &mut raw_buffer);
+            update_image_buffer(pixels.frame_mut(), &raw_buffer);
 
             let elapsed = start_time.elapsed();
             if cli.verbose {
-                println!("Instructions: {} Frametime: {}ms", ipf, elapsed.as_millis());
+                println!(
+                    "Instructions: {} Frametime: {}ms (Engine only: {}ms)",
+                    ipf,
+                    elapsed.as_millis(),
+                    engine_elapsed.as_millis()
+                );
             }
             if elapsed < FRAMETIME {
                 std::thread::sleep(FRAMETIME - elapsed);

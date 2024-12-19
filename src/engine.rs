@@ -1,7 +1,7 @@
 use std::ops::{BitAnd, BitXor};
 use thiserror::Error;
 
-const MEMSIZE: usize = u16::MAX as usize + 1;
+pub const MEMSIZE: usize = u16::MAX as usize + 1;
 
 const SET: u16 = 0;
 const GOTO: u16 = 1;
@@ -71,10 +71,15 @@ impl Engine {
         self.pos_code = pos_code;
         self.key_code = key_code;
     }
-    pub fn perform_sync(&mut self, pos_code: u16, key_code: u16) -> [u16; MEMSIZE] {
+    pub fn perform_sync(
+        &mut self,
+        pos_code: u16,
+        key_code: u16,
+        buffer: &mut [u16; MEMSIZE],
+    ) -> () {
         self.set_input(pos_code, key_code);
         self.sync_called = false;
-        return self.screen.clone();
+        *buffer = self.screen;
     }
 }
 impl Engine {

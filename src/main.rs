@@ -1,4 +1,4 @@
-od cli;
+mod cli;
 mod engine;
 mod utils;
 

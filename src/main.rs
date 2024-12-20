@@ -8,6 +8,8 @@ use cli::Cli;
 use engine::Engine;
 use gilrs::Gilrs;
 use pixels::{Pixels, SurfaceTexture};
+use rodio::{source::Source, Decoder, OutputStream, Sink};
+use std::any::Any;
 use std::time::{Duration, Instant};
 use utils::*;
 use winit::dpi::LogicalSize;
@@ -28,6 +30,8 @@ fn main() -> Result<()> {
     let event_loop = EventLoop::new()?;
     let mut input = WinitInputHelper::new();
     let mut gamepad = build_gamepad_map();
+    let (audio_strem, audio_player) = rodio::OutputStream::try_default()?;
+    let audio_sink = Sink::try_new(&audio_player)?;
     if cli.scaling < 1 {
         return Err(anyhow!("The minimal scaling factor is 1"));
     }
@@ -67,12 +71,15 @@ fn main() -> Result<()> {
                 paused = !paused;
                 if paused {
                     window.set_title("SVC16 (paused)");
+                    audio_sink.pause();
                 } else {
                     window.set_title("SVC16");
+                    audio_sink.play();
                 }
             }
             if input.key_pressed_logical(Key::Character("r")) {
                 engine = Engine::new(initial_state.clone());
+                audio_sink.clear();
                 paused = false;
             }
 
@@ -98,7 +105,14 @@ fn main() -> Result<()> {
             let engine_elapsed = engine_start.elapsed();
             gamepad.update_with_gilrs(&mut girls);
             let (c1, c2) = get_input_code(&input, &gamepad, &pixels);
-            engine.perform_sync(c1, c2, &mut raw_buffer);
+            let sound_request = engine.perform_sync(c1, c2, &mut raw_buffer);
+            if let Some(audio) = sound_request {
+                dbg!(&audio);
+                let source = SoundFormat::new(audio);
+                audio_sink.clear();
+                audio_sink.append(source);
+                audio_sink.play();
+            }
             update_image_buffer(pixels.frame_mut(), &raw_buffer);
 
             let elapsed = start_time.elapsed();

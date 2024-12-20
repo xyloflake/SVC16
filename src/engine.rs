@@ -23,10 +23,12 @@ const SYNC: u16 = 15;
 pub struct Engine {
     memory: [u16; MEMSIZE],
     screen: [u16; MEMSIZE],
+    sound: [u16; MEMSIZE],
     instruction_pointer: u16,
     pos_code: u16,
     key_code: u16,
     sync_called: bool,
+    sound_code: u16,
 }
 
 #[derive(Debug, Error)]
@@ -58,10 +60,12 @@ impl Engine {
         Self {
             memory,
             screen: [0; MEMSIZE],
+            sound: [0; MEMSIZE],
             instruction_pointer: 0,
             pos_code: 0,
             key_code: 0,
             sync_called: false,
+            sound_code: 0,
         }
     }
     pub fn wants_to_sync(&self) -> bool {
@@ -76,10 +80,15 @@ impl Engine {
         pos_code: u16,
         key_code: u16,
         buffer: &mut [u16; MEMSIZE],
-    ) -> () {
+    ) -> Option<Vec<u16>> {
         self.set_input(pos_code, key_code);
         self.sync_called = false;
         *buffer = self.screen;
+        if self.sound_code == 0 {
+            return None;
+        } else {
+            return Some(self.sound[..self.sound_code as usize].to_vec());
+        }
     }
 }
 impl Engine {
@@ -92,8 +101,14 @@ impl Engine {
     fn get_screen(&self, index: u16) -> u16 {
         return self.screen[index as usize];
     }
+    fn get_sound(&self, index: u16) -> u16 {
+        return self.sound[index as usize];
+    }
     fn set_screen(&mut self, index: u16, value: u16) {
         self.screen[index as usize] = value;
+    }
+    fn set_sound(&mut self, index: u16, value: u16) {
+        self.sound[index as usize] = value;
     }
     pub fn read_instruction(&self) -> [u16; 4] {
         return [0, 1, 2, 3].map(|o| self.get(self.instruction_pointer.wrapping_add(o)));
@@ -168,11 +183,19 @@ impl Engine {
                 self.advance_inst_ptr();
             }
             PRINT => {
-                self.set_screen(self.get(arg2), self.get(arg1));
+                if arg3 == 0 {
+                    self.set_screen(self.get(arg2), self.get(arg1));
+                } else {
+                    self.set_sound(self.get(arg2), self.get(arg1));
+                }
                 self.advance_inst_ptr();
             }
             READ => {
-                self.set(arg2, self.get_screen(self.get(arg1)));
+                if arg3 == 0 {
+                    self.set(arg2, self.get_screen(self.get(arg1)));
+                } else {
+                    self.set(arg2, self.get_sound(self.get(arg1)));
+                }
                 self.advance_inst_ptr();
             }
             BAND => {
@@ -189,6 +212,7 @@ impl Engine {
                 self.sync_called = true;
                 self.set(arg1, self.pos_code);
                 self.set(arg2, self.key_code);
+                self.sound_code = self.get(arg3);
                 self.advance_inst_ptr();
             }
             _ => return Err(EngineError::InvalidInstruction),

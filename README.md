@@ -66,6 +66,13 @@ The instruction pointer represents an address in main memory. It starts as zero.
 
 The screen has a resolution of $256*256=2^{16}$ pixels. The color of each pixel is represented with 16-bits using `RGB565`. The coordinate $(x,y)$ of the screen maps to the index $256y+x$ in the screen-buffer. The coordinate $(0,0)$ is in the upper left-hand corner. Changes to the screen-buffer are not reflected on the screen until the system is synchronized.
 
+### Sound 
+
+The system can play a sample from a sound buffer.
+There is only one channel, so if a new sample is dispatched any that are currently playing are stopped.
+The audio is represented with a sampling rate of 16 kHz. Each sample being, once again a u16.
+The amplitude of the signal is given as:`amplitude=(float(sample) - 32768.0) / 32768.0`.
+
 ### Input
 
 <div align="left">
@@ -127,11 +134,13 @@ When the instruction pointer advances, it does so by four positions.
 | 8      | **Deref** | yes        | `@arg2=@(@arg1+arg3)`                                                        |
 | 9      | **Ref**   | yes        | `@(@arg1+arg3)=@arg2`                                                        |
 | 10     | **Inst**  | yes        | `@arg1=inst_ptr`                                                             |
-| 11     | **Print** | yes        | Writes `color=@arg1` to `index=@arg2` of screen-buffer.                      |
-| 12     | **Read**  | yes        | Copies `index=@arg1` of screen-buffer to `@arg2`                             |
+| 11     | **Print** | yes        | Writes `color=@arg1` to `index=@arg2` of buffer arg3                         |
+| 12     | **Read**  | yes        | Copies `index=@arg1` of buffer arg3 to `@arg2`                               |
 | 13     | **Band**  | yes        | `@arg3=@arg1&@arg2`                                                          |
 | 14     | **Xor**   | yes        | `@arg3=@arg1^@arg2`                                                          |
-| 15     | **Sync**  | yes        | Puts `@arg1=position_code`,  `@arg2=key_code` and synchronizes in that order |
+| 15     | **Sync**  | yes        | Puts `@arg1=position_code`,  `@arg2=key_code` and synchronizes in that order if @arg3, it plays @arg3 values of the sound buffer. |
+
+When an argument refers to the name of a buffer, it means the screen buffer if it is 0 and the sound buffer otherwise.
 
 ### Constructing a Program
 

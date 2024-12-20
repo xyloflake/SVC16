@@ -1,6 +1,7 @@
 use crate::RES;
 use anyhow::Result;
 use pixels::Pixels;
+use rodio::Source;
 use std::hash::Hash;
 use winit::{
     event::MouseButton,
@@ -128,4 +129,47 @@ pub fn get_input_code(
 pub fn handle_event_loop_error(handle: &EventLoopWindowTarget<()>, msg: impl AsRef<str>) {
     eprintln!("{}", msg.as_ref());
     handle.exit();
+}
+
+pub struct SoundFormat {
+    samples: Vec<u16>,
+    current: usize,
+}
+
+impl SoundFormat {
+    pub fn new(vec: Vec<u16>) -> Self {
+        Self {
+            samples: vec,
+            current: 0,
+        }
+    }
+}
+impl Iterator for SoundFormat {
+    type Item = f32;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let val = self
+            .samples
+            .get(self.current)
+            .map(|v| (*v as f32 - 32768.0) / 32768.0);
+        self.current += 1;
+        val
+    }
+}
+impl Source for SoundFormat {
+    fn current_frame_len(&self) -> Option<usize> {
+        None
+    }
+
+    fn channels(&self) -> u16 {
+        1
+    }
+
+    fn sample_rate(&self) -> u32 {
+        16000
+    }
+
+    fn total_duration(&self) -> Option<std::time::Duration> {
+        None
+    }
 }

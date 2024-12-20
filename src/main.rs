@@ -1,4 +1,4 @@
-mod cli;
+od cli;
 mod engine;
 mod utils;
 
@@ -107,7 +107,6 @@ fn main() -> Result<()> {
             let (c1, c2) = get_input_code(&input, &gamepad, &pixels);
             let sound_request = engine.perform_sync(c1, c2, &mut raw_buffer);
             if let Some(audio) = sound_request {
-                dbg!(&audio);
                 let source = SoundFormat::new(audio);
                 audio_sink.clear();
                 audio_sink.append(source);

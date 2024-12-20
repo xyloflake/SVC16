@@ -8,8 +8,7 @@ use cli::Cli;
 use engine::Engine;
 use gilrs::Gilrs;
 use pixels::{Pixels, SurfaceTexture};
-use rodio::{source::Source, Decoder, OutputStream, Sink};
-use std::any::Any;
+use rodio::Sink;
 use std::time::{Duration, Instant};
 use utils::*;
 use winit::dpi::LogicalSize;
@@ -30,7 +29,7 @@ fn main() -> Result<()> {
     let event_loop = EventLoop::new()?;
     let mut input = WinitInputHelper::new();
     let mut gamepad = build_gamepad_map();
-    let (audio_strem, audio_player) = rodio::OutputStream::try_default()?;
+    let (_audio_strem, audio_player) = rodio::OutputStream::try_default()?;
     let audio_sink = Sink::try_new(&audio_player)?;
     if cli.scaling < 1 {
         return Err(anyhow!("The minimal scaling factor is 1"));

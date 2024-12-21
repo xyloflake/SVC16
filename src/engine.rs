@@ -84,6 +84,10 @@ impl Engine {
         self.set_input(pos_code, key_code);
         self.sync_called = false;
         *buffer = self.screen_buffer;
+        if self.expansion_triggered {
+            self.expansion_triggered = false;
+            self.utility_buffer = [0; MEMSIZE];
+        }
     }
 }
 impl Engine {
